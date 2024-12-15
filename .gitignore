@@ -1,3 +1,8 @@
+cardano-smart-contracts
+.vscode/
+misc/
+*secret.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
