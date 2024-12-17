@@ -66,7 +66,6 @@ def postprocess_vulnerabilities_data(
             processed_contract = strip_exact(contract)
             entry["contract"] = processed_contract
             contract_path = entry.get("path", "")
-            contract_language = entry.get("language", "")
             label = entry.get("label", "")
             bug_explanation = entry.get("bug_explanation", "")
             # Sort data
@@ -75,7 +74,6 @@ def postprocess_vulnerabilities_data(
                 print("Skipping original contract with no bugs.")
                 explanation_outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 grouped_contracts[contract_path]["original"] = entry
-                # grouped_contracts[contract_path]["original"] = entry
 
             else:
                 if bug_explanation == "Error generating explanation.":
@@ -88,35 +86,21 @@ def postprocess_vulnerabilities_data(
                         json.dumps(entry, ensure_ascii=False) + "\n"
                     )
                 else:
-                    # entry["contract"] = processed_contract
                     grouped_contracts[contract_path]["modified"].append(entry)
-                    # explanation_outfile.write(
-                    #    json.dumps(entry, ensure_ascii=False) + "\n"
-                    # )
+
         for path, data in grouped_contracts.items():
-            original = data["original"]
+            original = data["original"]["contract"]
             modified_list = data["modified"]
             for i, modified in enumerate(modified_list, start=1):
-                diff = difflib.unified_diff(
-                    original["contract"],
-                    modified["contract"],
-                    fromfile=f"{path} (original)",
-                    tofile=f"{path} (modified {i})",
-                    lineterm="",
-                )
+                modified_contract = modified["contract"]
 
-                diff_output = "\n".join(diff)
-
-                filtered_lines = [
-                    line for line in diff_output.splitlines() if line.strip()
-                ]
-                if filtered_lines:
-                    explanation_outfile.write(
+                # Check for identical content
+                if original.strip() == modified_contract.strip():
+                    identical_contract_outfile.write(
                         json.dumps(modified, ensure_ascii=False) + "\n"
                     )
-
                 else:
-                    identical_contract_outfile.write(
+                    explanation_outfile.write(
                         json.dumps(modified, ensure_ascii=False) + "\n"
                     )
 
@@ -124,16 +108,14 @@ def postprocess_vulnerabilities_data(
 def main():
     # Paths
     vulnerabilities_data = "data/vulnerabilities_data.jsonl"
-    postprocessed_dir = "data/postprocessed"
+    postprocessed_dir = "data/postprocessed/"
     os.makedirs(postprocessed_dir, exist_ok=True)
+    removed_dir = "data/postprocessed/removed"
+    os.makedirs(removed_dir, exist_ok=True)
     postprocessed_explanation_data = f"{postprocessed_dir}/postprocessed_good.jsonl"
-    postprocessed_extract_error = (
-        f"{postprocessed_dir}/postprocessed_extract_error.jsonl"
-    )
-    postprocessed_generate_error = (
-        f"{postprocessed_dir}/postprocessed_generate_error.jsonl"
-    )
-    identical_contract = f"{postprocessed_dir}/postprocessed_identical_contract.jsonl"
+    postprocessed_extract_error = f"{removed_dir}/postprocessed_extract_error.jsonl"
+    postprocessed_generate_error = f"{removed_dir}/postprocessed_generate_error.jsonl"
+    identical_contract = f"{removed_dir}/postprocessed_identical_contract.jsonl"
     postprocess_vulnerabilities_data(
         vulnerabilities_data,
         postprocessed_explanation_data,
