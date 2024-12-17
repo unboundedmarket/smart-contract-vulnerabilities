@@ -94,11 +94,12 @@ def create_dataset_jsonl(
 
 def main():
     data_dir = "cardano-smart-contracts/data"
+    output_dir = "data"
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = f"{output_dir}/filtered_data.jsonl"
+
     # selected_keywords = {"validator", "onchain"}
     selected_keywords = {"validator"}
-    # selected_keywords = {"validator", "onchain"}
-
-    output_file = f"data.jsonl"
     filter_keywords = {
         "test": {"test"},
         "utility": {"util"},

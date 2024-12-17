@@ -2,6 +2,7 @@ cardano-smart-contracts
 .vscode/
 misc/
 *secret.py
+diffs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
