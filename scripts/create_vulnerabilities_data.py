@@ -1,6 +1,8 @@
 import json
 import openai
 import os
+import tiktoken
+
 
 from secret import OPENAIKEY
 
@@ -19,6 +21,13 @@ from utils.constants import (
 )
 
 openai.api_key = OPENAIKEY
+MAX_PROMPT_TOKENS = 4096
+
+
+def estimate_token_count(prompt: str, code: str) -> int:
+    """Estimate token count using tiktoken."""
+    enc = tiktoken.encoding_for_model("gpt-4o")
+    return len(enc.encode(prompt + code))
 
 
 def get_bug_prompts_for_language(lang):
@@ -55,7 +64,7 @@ def call_gpt4o_api(original_code, prompt, contract_language):
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg},
             ],
-            max_tokens=2500,
+            max_tokens=6500,
             temperature=0,
         )
 
@@ -102,7 +111,7 @@ def load_processed_files(output_file_path):
 
 def process_contracts(input_file, output_file, processed_files):
     with open(input_file, "r", encoding="utf-8") as infile, open(
-        output_file, "w", encoding="utf-8"
+        output_file, "a", encoding="utf-8" 
     ) as outfile:
 
         for line in infile:
@@ -114,22 +123,13 @@ def process_contracts(input_file, output_file, processed_files):
             contract_path = entry.get("path", "")
             contract_language = entry.get("language", "")
 
-            print(f"Processing contract: {contract_path}")
-            if contract_path in processed_files:
-                if DEFAULT_NO_BUG_PROMPT in processed_files[contract_path]:
-                    print(
-                        f"Skipping already processed original contract file: {contract_path}"
-                    )
-                    outfile.write(
-                        json.dumps(
-                            processed_files[contract_path][DEFAULT_NO_BUG_PROMPT],
-                            ensure_ascii=False,
-                        )
-                        + "\n"
-                    )
+            if not contract_path or not contract_language:
+                continue
 
+            if contract_path in processed_files and DEFAULT_NO_BUG_PROMPT in processed_files[contract_path]:
+                print(f"Skipping already processed original contract file: {contract_path}")
             else:
-                # original contract without bugs
+                print(f"Processing original contract: {contract_path}")
                 original_output = {
                     "contract": original_contract,
                     "bug_explanation": DEFAULT_NO_BUG_EXPLANATION,
@@ -142,39 +142,28 @@ def process_contracts(input_file, output_file, processed_files):
 
             bug_prompts = get_bug_prompts_for_language(contract_language)
             for bug_prompt in bug_prompts:
+                if contract_path in processed_files and bug_prompt in processed_files[contract_path]:
+                    print(f"Skipping already processed bug prompt for contract file: {contract_path}")
+                    continue
 
-                if (
-                    contract_path in processed_files
-                    and bug_prompt in processed_files[contract_path]
-                ):
-                    print(
-                        f"Skipping already processed bug prompt for contract file: {contract_path}"
-                    )
-                    outfile.write(
-                        json.dumps(
-                            processed_files[contract_path][bug_prompt],
-                            ensure_ascii=False,
-                        )
-                        + "\n"
-                    )
-                else:
-                    print(f"Processing bug prompt: {bug_prompt}")
-                    response = call_gpt4o_api(
-                        original_contract, bug_prompt, contract_language
-                    )
-                    if "modified_code" in response and "bug_explanation" in response:
-                        modified_code = response["modified_code"]
-                        bug_explanation = response["bug_explanation"]
+                print(f"Processing bug prompt: {bug_prompt}")
+                estimated_tokens = estimate_token_count(bug_prompt, original_contract)
+                if estimated_tokens > MAX_PROMPT_TOKENS:
+                    print(f"Skipping contract due to length ({estimated_tokens} tokens): {contract_path}")
+                    continue
 
-                        bug_output = {
-                            "contract": modified_code,
-                            "bug_explanation": bug_explanation,
-                            "label": BUG_LABEL,
-                            "path": contract_path,
-                            "language": contract_language,
-                            "bug_prompt": bug_prompt,
-                        }
-                        outfile.write(json.dumps(bug_output, ensure_ascii=False) + "\n")
+                response = call_gpt4o_api(original_contract, bug_prompt, contract_language)
+                if "modified_code" in response and "bug_explanation" in response:
+                    bug_output = {
+                        "contract": response["modified_code"],
+                        "bug_explanation": response["bug_explanation"],
+                        "label": BUG_LABEL,
+                        "path": contract_path,
+                        "language": contract_language,
+                        "bug_prompt": bug_prompt,
+                    }
+                    outfile.write(json.dumps(bug_output, ensure_ascii=False) + "\n")
+
 
 
 def main():
