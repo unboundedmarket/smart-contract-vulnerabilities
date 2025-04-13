@@ -30,7 +30,7 @@ This repository provides scripts and utilities for:
   - **`scripts/utils/bug_prompts.py`**  
     Contains templates for common smart contract vulnerabilities.
 
-## Usage
+## Get Started
 
 ### 1. Setup
 
@@ -110,3 +110,37 @@ You can easily extend the dataset by:
    - Re-run `python scripts/create_vulnerabilities_data.py`.
 
 The script will detect existing prompts and only extend the dataset with new ones.
+
+### 7. Prepare Training Data
+
+Given the processed dataset, you can adjust the format for training by running:
+
+`python scripts/prepare_training_data.py`
+
+### 8. Split Dataset
+
+To split the dataset into training and test sets, run:
+
+`python scripts/split_data.py`
+
+### 9. Fine-Tuning
+
+You can now fine-tune your model of choice using the dataset located at `data/training/train_dataset.jsonl`.
+
+We used the [OpenLLaMA 3B v2 model](https://huggingface.co/openlm-research/open_llama_3b_v2) and fine-tuned it using [Axolotl](https://github.com/axolotl-ai-cloud/axolotl).
+
+Our fine-tuned model is available on Hugging Face:  
+👉 [unboundedmarket/vulnerabilities-openllama-3b](https://huggingface.co/unboundedmarket/vulnerabilities-openllama-3b)
+
+### 10. Evaluation
+
+After fine-tuning, you can evaluate the model by running:
+
+`python scripts/evaluate.py`
+
+## Additional Information
+
+To view the evaluation results, see:  
+`results/vulnerabilities-openllama-3b_evaluation_results.json`
+
+To read more about our fine-tuning approach, check out our detailed write-up [here](https://drive.google.com/file/d/1_L0TezkXa7Gw0-Ya0OQ9X5O46iVLDXyn/view?usp=sharing).
