@@ -1,5 +1,7 @@
 # Smart Contract Vulnerabilities
 
+Project Catalyst: 1200174
+
 This repository contains the code and tools to create a dataset of Cardano smart contracts with various vulnerabilities. The dataset can be used for analysis, education, or training machine learning models to detect vulnerabilities.
 
 ## Overview
@@ -144,3 +146,9 @@ To view the evaluation results, see:
 `results/vulnerabilities-openllama-3b_evaluation_results.json`
 
 To read more about our fine-tuning approach, check out our detailed write-up [here](https://drive.google.com/file/d/1_L0TezkXa7Gw0-Ya0OQ9X5O46iVLDXyn/view?usp=sharing).
+
+
+## Acknowledgments
+
+This project is funded by Project Catalyst ([1200174](https://milestones.projectcatalyst.io/projects/1200174/milestones)).
+We are very grateful for the support from the Cardano community in developing the vulnerability scanner for Cardano smart contracts.
