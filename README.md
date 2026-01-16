@@ -140,12 +140,14 @@ After fine-tuning, you can evaluate the model by running:
 
 `python scripts/evaluate.py`
 
-## Additional Information
+## Reports & Additional Information
 
 To view the evaluation results, see:  
 `results/vulnerabilities-openllama-3b_evaluation_results.json`
 
-To read more about our fine-tuning approach, check out our detailed write-up [here](https://drive.google.com/file/d/1_L0TezkXa7Gw0-Ya0OQ9X5O46iVLDXyn/view?usp=sharing).
+A detailed reserach report about smart contract vulnerability scanning can be found [here](/reports/1200174_Vulnerability_Scanner.pdf).
+
+To read more about our fine-tuning approach, check out our detailed write-up [here](/reports/1200174_M3_Fine_Tuning_Vulnerability_Scanner.pdf).
 
 
 ## Acknowledgments
