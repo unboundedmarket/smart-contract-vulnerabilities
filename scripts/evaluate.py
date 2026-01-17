@@ -1,28 +1,53 @@
 import json
 import math
+import os
+import argparse
 import torch
 from transformers import LlamaForCausalLM, LlamaTokenizer
 from tqdm import tqdm
 
+parser = argparse.ArgumentParser(
+    description="Evaluate a fine-tuned model on smart contract vulnerability detection."
+)
+parser.add_argument(
+    "--model-name",
+    default="vulnerabilities-openllama-3b",
+    help="Model name on Hugging Face (default: vulnerabilities-openllama-3b)"
+)
+parser.add_argument(
+    "--hf-account",
+    default="unboundedmarket",
+    help="Hugging Face account name (default: unboundedmarket)"
+)
+parser.add_argument(
+    "--test-file",
+    default="data/training/test_dataset.jsonl",
+    help="Test dataset JSONL file (default: data/training/test_dataset.jsonl)"
+)
+parser.add_argument(
+    "--output-dir",
+    default="results",
+    help="Output directory for evaluation results (default: results)"
+)
+args = parser.parse_args()
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load fine-tuned model and tokenizer from Hugging Face Hub
-hf_account = "unboundedmarket"
-#hf_account = "openlm-research"
+model_name_or_path = f"{args.hf_account}/{args.model_name}"
 
-model_name = "vulnerabilities-openllama-3b"
-#model_name = "open_llama_3b_v2"
+if not os.path.exists(args.test_file):
+    print(f"Error: Test file '{args.test_file}' does not exist.")
+    exit(1)
 
-
-model_name_or_path = f"{hf_account}/{model_name}"
+os.makedirs(args.output_dir, exist_ok=True)
 
 model = LlamaForCausalLM.from_pretrained(model_name_or_path)
 tokenizer = LlamaTokenizer.from_pretrained(model_name_or_path)
 model.to(device)
 model.eval()
 
-test_file = "test_dataset.jsonl" 
-with open(test_file, "r") as f:
+with open(args.test_file, "r") as f:
     test_data = [json.loads(line) for line in f]
 
 predictions_list = []
@@ -99,8 +124,11 @@ evaluation_results = {
 }
 
 
-output_results_file = f"{model_name}_evaluation_results.json"
+output_results_file = os.path.join(args.output_dir, f"{args.model_name}_evaluation_results.json")
 with open(output_results_file, "w") as fout:
     json.dump(evaluation_results, fout, indent=4)
 
 print(f"Evaluation results saved to {output_results_file}")
+print(f"Bug Detection Accuracy: {accuracy:.4f}")
+print(f"Average Loss: {average_loss:.4f}")
+print(f"Perplexity: {perplexity:.4f}")

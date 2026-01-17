@@ -34,6 +34,12 @@ This repository provides scripts and utilities for:
 
 ## Get Started
 
+All scripts support command-line arguments for flexible configuration. Use `--help` with any script to see available options:
+
+```bash
+python scripts/<script_name>.py --help
+```
+
 ### 1. Setup
 
 Clone this repository and navigate to its directory:
@@ -54,10 +60,19 @@ cd ..
 
 ### 2. Filter Data
 
-The script `scripts/filter_data.py` filters out contracts based on predefined keywords (e.g., utility functions, test cases). Modify the keywords in the script if needed. Then, run the following command:
+The script `scripts/filter_data.py` filters out contracts based on predefined keywords (e.g., utility functions, test cases). Run the following command:
 
 ```bash
 python scripts/filter_data.py
+```
+
+**Command-line options:**
+- `--input-dir`: Input directory containing smart contracts (default: `cardano-smart-contracts/data`)
+- `--output-file`: Output JSONL file path (default: `data/filtered_data.jsonl`)
+
+Example with custom paths:
+```bash
+python scripts/filter_data.py --input-dir /path/to/contracts --output-file my_data/filtered.jsonl
 ```
 
 The script will create a dataset in JSON Lines format within the `data/` directory. Each entry includes:
@@ -75,6 +90,10 @@ Run the following command to generate buggy contracts and explanations:
 python scripts/create_vulnerabilities_data.py
 ```
 
+**Command-line options:**
+- `--input-file`: Input JSONL file with filtered contracts (default: `data/filtered_data.jsonl`)
+- `--output-file`: Output JSONL file for vulnerabilities data (default: `data/vulnerabilities_data.jsonl`)
+
 This script uses GPT-4o to:
 1. Augment contracts with specified bugs.
 2. Generate detailed explanations for the introduced vulnerabilities.
@@ -87,12 +106,27 @@ To clean up the dataset by removing entries where bug or explanation generation 
 python scripts/postprocess_vulnerabilities_data.py
 ```
 
+**Command-line options:**
+- `--input-file`: Input vulnerabilities JSONL file (default: `data/vulnerabilities_data.jsonl`)
+- `--output-file`: Output file for valid entries (default: `data/postprocessed/postprocessed_good.jsonl`)
+- `--removed-dir`: Directory for removed entries (default: `data/postprocessed/removed`)
+
 ### 5. Inspect Data
 
 Manually inspect the bugs and their explanations using the following command:
 
 ```bash
 python scripts/inspect_vulnerabilities_data.py
+```
+
+**Command-line options:**
+- `--input-file`: Input postprocessed JSONL file (default: `data/postprocessed/postprocessed_good.jsonl`)
+- `--output-diffs`: Save diffs to files (flag, default: False)
+- `--output-dir`: Output directory for diff files (default: `diffs`)
+
+Example to save diffs:
+```bash
+python scripts/inspect_vulnerabilities_data.py --output-diffs
 ```
 
 This script aggregates all augmentations for a given contract, showing:
@@ -117,13 +151,28 @@ The script will detect existing prompts and only extend the dataset with new one
 
 Given the processed dataset, you can adjust the format for training by running:
 
-`python scripts/prepare_training_data.py`
+```bash
+python scripts/prepare_training_data.py
+```
+
+**Command-line options:**
+- `--input-file`: Input postprocessed JSONL file (default: `data/postprocessed/postprocessed_good.jsonl`)
+- `--output-file`: Output formatted dataset JSONL file (default: `data/training/formatted_dataset.jsonl`)
 
 ### 8. Split Dataset
 
 To split the dataset into training and test sets, run:
 
-`python scripts/split_data.py`
+```bash
+python scripts/split_data.py
+```
+
+**Command-line options:**
+- `--input-file`: Input formatted dataset JSONL file (default: `data/training/formatted_dataset.jsonl`)
+- `--train-file`: Output training dataset JSONL file (default: `data/training/train_dataset.jsonl`)
+- `--test-file`: Output test dataset JSONL file (default: `data/training/test_dataset.jsonl`)
+- `--split-ratio`: Ratio of training data (default: 0.9)
+- `--seed`: Random seed for reproducibility (default: 42)
 
 ### 9. Fine-Tuning
 
@@ -138,7 +187,20 @@ Our fine-tuned model is available on Hugging Face:
 
 After fine-tuning, you can evaluate the model by running:
 
-`python scripts/evaluate.py`
+```bash
+python scripts/evaluate.py
+```
+
+**Command-line options:**
+- `--model-name`: Model name on Hugging Face (default: `vulnerabilities-openllama-3b`)
+- `--hf-account`: Hugging Face account name (default: `unboundedmarket`)
+- `--test-file`: Test dataset JSONL file (default: `data/training/test_dataset.jsonl`)
+- `--output-dir`: Output directory for evaluation results (default: `results`)
+
+Example with a different model:
+```bash
+python scripts/evaluate.py --model-name my-model --hf-account myaccount
+```
 
 ## Reports & Additional Information
 

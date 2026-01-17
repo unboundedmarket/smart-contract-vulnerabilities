@@ -2,6 +2,7 @@ import json
 import openai
 import os
 import tiktoken
+import argparse
 
 
 from secret import OPENAIKEY
@@ -167,12 +168,32 @@ def process_contracts(input_file, output_file, processed_files):
 
 
 def main():
-    input_file = "data/filtered_data.jsonl"
-    output_file = "data/vulnerabilities_data.jsonl"
-    processed_files = load_processed_files(output_file)
-    # print(processed_files.keys())
+    parser = argparse.ArgumentParser(
+        description="Generate buggy versions of smart contracts with explanations using GPT-4o."
+    )
+    parser.add_argument(
+        "--input-file",
+        default="data/filtered_data.jsonl",
+        help="Input JSONL file with filtered contracts (default: data/filtered_data.jsonl)"
+    )
+    parser.add_argument(
+        "--output-file",
+        default="data/vulnerabilities_data.jsonl",
+        help="Output JSONL file for vulnerabilities data (default: data/vulnerabilities_data.jsonl)"
+    )
+    args = parser.parse_args()
 
-    process_contracts(input_file, output_file, processed_files)
+    if not os.path.exists(args.input_file):
+        print(f"Error: Input file '{args.input_file}' does not exist.")
+        return
+
+    output_dir = os.path.dirname(args.output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    processed_files = load_processed_files(args.output_file)
+    process_contracts(args.input_file, args.output_file, processed_files)
+    print(f"Vulnerabilities data written to {args.output_file}")
 
 
 if __name__ == "__main__":

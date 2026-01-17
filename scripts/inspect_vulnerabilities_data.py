@@ -1,4 +1,6 @@
 import json
+import os
+import argparse
 import difflib
 from collections import defaultdict
 
@@ -13,6 +15,11 @@ def read_jsonl(filepath: str):
 
 
 def inspect_contracts(input_file: str, output_diff=False, output_dir="diffs"):
+    """Inspect contracts and generate diffs between original and modified versions."""
+    if not os.path.exists(input_file):
+        print(f"Error: Input file '{input_file}' does not exist.")
+        return
+
     grouped_contracts = defaultdict(
         lambda: {"original": None, "modified": [], "explanation": [], "bug_prompts": []}
     )
@@ -80,8 +87,30 @@ def inspect_contracts(input_file: str, output_diff=False, output_dir="diffs"):
 
 
 def main():
-    input_file = "data/postprocessed/postprocessed_good.jsonl"
-    inspect_contracts(input_file, output_diff=True)
+    parser = argparse.ArgumentParser(
+        description="Inspect and compare original vs modified smart contracts with vulnerabilities."
+    )
+    parser.add_argument(
+        "--input-file",
+        default="data/postprocessed/postprocessed_good.jsonl",
+        help="Input postprocessed JSONL file (default: data/postprocessed/postprocessed_good.jsonl)"
+    )
+    parser.add_argument(
+        "--output-diffs",
+        action="store_true",
+        help="Save diffs to files (default: False)"
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="diffs",
+        help="Output directory for diff files (default: diffs)"
+    )
+    args = parser.parse_args()
+
+    inspect_contracts(args.input_file, output_diff=args.output_diffs, output_dir=args.output_dir)
+    
+    if args.output_diffs:
+        print(f"Diff files saved to {args.output_dir}/")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import json
 import os
+import argparse
 from collections import defaultdict
 import difflib
 
@@ -106,23 +107,47 @@ def postprocess_vulnerabilities_data(
 
 
 def main():
-    # Paths
-    vulnerabilities_data = "data/vulnerabilities_data.jsonl"
-    postprocessed_dir = "data/postprocessed/"
-    os.makedirs(postprocessed_dir, exist_ok=True)
-    removed_dir = "data/postprocessed/removed"
-    os.makedirs(removed_dir, exist_ok=True)
-    postprocessed_explanation_data = f"{postprocessed_dir}/postprocessed_good.jsonl"
-    postprocessed_extract_error = f"{removed_dir}/postprocessed_extract_error.jsonl"
-    postprocessed_generate_error = f"{removed_dir}/postprocessed_generate_error.jsonl"
-    identical_contract = f"{removed_dir}/postprocessed_identical_contract.jsonl"
+    parser = argparse.ArgumentParser(
+        description="Postprocess vulnerabilities data to remove invalid entries."
+    )
+    parser.add_argument(
+        "--input-file",
+        default="data/vulnerabilities_data.jsonl",
+        help="Input vulnerabilities JSONL file (default: data/vulnerabilities_data.jsonl)"
+    )
+    parser.add_argument(
+        "--output-file",
+        default="data/postprocessed/postprocessed_good.jsonl",
+        help="Output file for valid entries (default: data/postprocessed/postprocessed_good.jsonl)"
+    )
+    parser.add_argument(
+        "--removed-dir",
+        default="data/postprocessed/removed",
+        help="Directory for removed entries (default: data/postprocessed/removed)"
+    )
+    args = parser.parse_args()
+
+    if not os.path.exists(args.input_file):
+        print(f"Error: Input file '{args.input_file}' does not exist.")
+        return
+
+    output_dir = os.path.dirname(args.output_file)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(args.removed_dir, exist_ok=True)
+
+    postprocessed_extract_error = os.path.join(args.removed_dir, "postprocessed_extract_error.jsonl")
+    postprocessed_generate_error = os.path.join(args.removed_dir, "postprocessed_generate_error.jsonl")
+    identical_contract = os.path.join(args.removed_dir, "postprocessed_identical_contract.jsonl")
+
     postprocess_vulnerabilities_data(
-        vulnerabilities_data,
-        postprocessed_explanation_data,
+        args.input_file,
+        args.output_file,
         postprocessed_extract_error,
         postprocessed_generate_error,
         identical_contract,
     )
+    print(f"Postprocessed data written to {args.output_file}")
+    print(f"Removed entries saved to {args.removed_dir}")
 
 
 if __name__ == "__main__":

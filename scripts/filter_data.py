@@ -1,5 +1,6 @@
 import os
 import json
+import argparse
 from typing import Set
 
 
@@ -93,10 +94,24 @@ def create_dataset_jsonl(
 
 
 def main():
-    data_dir = "cardano-smart-contracts/data"
-    output_dir = "data"
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = f"{output_dir}/filtered_data.jsonl"
+    parser = argparse.ArgumentParser(
+        description="Filter smart contracts based on keywords and create a JSONL dataset."
+    )
+    parser.add_argument(
+        "--input-dir",
+        default="cardano-smart-contracts/data",
+        help="Input directory containing smart contracts (default: cardano-smart-contracts/data)"
+    )
+    parser.add_argument(
+        "--output-file",
+        default="data/filtered_data.jsonl",
+        help="Output JSONL file path (default: data/filtered_data.jsonl)"
+    )
+    args = parser.parse_args()
+
+    output_dir = os.path.dirname(args.output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     # selected_keywords = {"validator", "onchain"}
     selected_keywords = {"validator"}
@@ -109,7 +124,9 @@ def main():
         "blueprint": {"blueprint"},
         "helper": {"helper"},
     }
-    create_dataset_jsonl(data_dir, filter_keywords, selected_keywords, output_file)
+    
+    create_dataset_jsonl(args.input_dir, filter_keywords, selected_keywords, args.output_file)
+    print(f"Filtered data written to {args.output_file}")
 
 
 if __name__ == "__main__":
