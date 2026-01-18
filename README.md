@@ -4,6 +4,12 @@ Project Catalyst: 1200174
 
 This repository contains the code and tools to create a dataset of Cardano smart contracts with various vulnerabilities. The dataset can be used for analysis, education, or training machine learning models to detect vulnerabilities.
 
+## Requirements
+
+- Python 3.8 or higher
+- OpenAI API key (for vulnerability generation)
+- pip (Python package installer)
+
 ## Overview
 
 This repository provides scripts and utilities for:
@@ -42,12 +48,61 @@ python scripts/<script_name>.py --help
 
 ### 1. Setup
 
+#### 1.1 Clone the Repository
+
 Clone this repository and navigate to its directory:
 
 ```bash
 git clone https://github.com/unboundedmarket/smart-contract-vulnerabilities.git
 cd smart-contract-vulnerabilities
 ```
+
+#### 1.2 Install Dependencies
+
+This project requires Python 3.8 or higher. Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Dependencies include:**
+- `openai` - For GPT-4o API calls to generate vulnerabilities
+- `tiktoken` - For token counting
+- `torch` - For model evaluation
+- `transformers` - For loading and evaluating language models
+- `tqdm` - For progress bars
+
+**Note:** If you only need data processing scripts (filter, postprocess, prepare, split, inspect), you can install a minimal set:
+```bash
+pip install openai tiktoken  # For vulnerability generation only
+```
+
+For model evaluation, you'll need the full set of dependencies.
+
+#### 1.3 Configure OpenAI API Key
+
+To use the vulnerability generation script, you need an OpenAI API key. You can configure it in two ways:
+
+**Option 1: Environment Variable (Recommended)**
+```bash
+export OPENAI_API_KEY="sk-your-actual-api-key-here"
+```
+
+Add this to your `~/.bashrc`, `~/.zshrc`, or run it in your terminal session.
+
+**Option 2: Create a secret.py file**
+```bash
+cp scripts/secret.py.example scripts/secret.py
+```
+
+Then edit `scripts/secret.py` and add your OpenAI API key:
+```python
+OPENAIKEY = "sk-your-actual-api-key-here"
+```
+
+**Note:** The `secret.py` file is ignored by git and should never be committed.
+
+#### 1.4 Clone Smart Contracts Dataset
 
 Clone the external smart contracts repository and pull the data:
 

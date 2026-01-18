@@ -4,8 +4,18 @@ import os
 import tiktoken
 import argparse
 
-
-from secret import OPENAIKEY
+# Try to get API key from environment variable first, then fallback to secret.py
+try:
+    from secret import OPENAIKEY
+except ImportError:
+    OPENAIKEY = os.environ.get('OPENAI_API_KEY')
+    if not OPENAIKEY:
+        raise ValueError(
+            "OpenAI API key not found. Please either:\n"
+            "1. Set the OPENAI_API_KEY environment variable, or\n"
+            "2. Create scripts/secret.py with: OPENAIKEY = 'your-api-key-here'\n"
+            "   (You can copy scripts/secret.py.example as a template)"
+        )
 
 from utils.bug_prompts import (
     AIKEN_BUG_PROMPTS,
