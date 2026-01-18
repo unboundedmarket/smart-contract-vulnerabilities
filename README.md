@@ -70,6 +70,7 @@ pip install -r requirements.txt
 - `tiktoken` - For token counting
 - `torch` - For model evaluation
 - `transformers` - For loading and evaluating language models
+- `accelerate` - For efficient model loading
 - `tqdm` - For progress bars
 
 **Note:** If you only need data processing scripts (filter, postprocess, prepare, split, inspect), you can install a minimal set:
@@ -77,7 +78,7 @@ pip install -r requirements.txt
 pip install openai tiktoken  # For vulnerability generation only
 ```
 
-For model evaluation, you'll need the full set of dependencies.
+For model evaluation, you'll need the full set of dependencies including `torch`, `transformers`, and `accelerate`.
 
 #### 1.3 Configure OpenAI API Key
 
@@ -262,7 +263,7 @@ python scripts/evaluate.py --model-name my-model --hf-account myaccount
 To view the evaluation results, see:  
 `results/vulnerabilities-openllama-3b_evaluation_results.json`
 
-A detailed reserach report about smart contract vulnerability scanning can be found [here](/reports/1200174_Vulnerability_Scanner.pdf).
+A detailed research report about smart contract vulnerability scanning can be found [here](/reports/1200174_Vulnerability_Scanner.pdf).
 
 To read more about our fine-tuning approach, check out our detailed write-up [here](/reports/1200174_M3_Fine_Tuning_Vulnerability_Scanner.pdf).
 

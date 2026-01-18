@@ -1,5 +1,5 @@
 import json
-import openai
+from openai import OpenAI
 import os
 import tiktoken
 import argparse
@@ -31,7 +31,7 @@ from utils.constants import (
     NO_BUG_LABEL,
 )
 
-openai.api_key = OPENAIKEY
+client = OpenAI(api_key=OPENAIKEY)
 MAX_PROMPT_TOKENS = 4096
 
 
@@ -69,7 +69,7 @@ def call_gpt4o_api(original_code, prompt, contract_language):
         "\n\nOriginal code:\n" + original_code
     )
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_msg},
