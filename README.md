@@ -267,6 +267,27 @@ A detailed research report about smart contract vulnerability scanning can be fo
 
 To read more about our fine-tuning approach, check out our detailed write-up [here](/reports/1200174_M3_Fine_Tuning_Vulnerability_Scanner.pdf).
 
+## Final Milestone: Community Feedback & Repository Improvements
+
+Following the public release of the vulnerability scanner, we engaged the Cardano developer community through X (Twitter) announcements and a structured public feedback form. Overall satisfaction was high, but community testing identified several usability and documentation issues that limited ease of adoption.
+
+### Addressing Community Feedback
+
+Based on this feedback, the following improvements were implemented. All updates are visible in the GitHub commit history and documented throughout this repository:
+
+- **Dependency Management**
+  - Added a comprehensive `requirements.txt` file covering all required Python dependencies.
+  - Updated the codebase to support the latest version of the `openai` package.
+  - Expanded README installation and setup instructions.
+
+- **Improved Script Usability**
+  - Refactored all scripts to eliminate hardcoded file paths.
+  - Introduced configurable command-line arguments using `argparse` (e.g. `--input-dir`, `--output-file`) with sensible defaults.
+
+- **Documentation & Project Context**
+  - Updated the README with clear references to Project Catalyst
+  - Added an acknowledgments section linking to the Catalyst milestone tracker.
+  - Created a dedicated `/reports` directory containing all milestone deliverables and research outputs, with direct links from the README.
 
 ## Acknowledgments
 
